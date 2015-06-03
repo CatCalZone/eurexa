@@ -136,7 +136,7 @@ defmodule Eurexa.EurexaServer do
 	end
 	
 	def init([app_name]) do
-		app = %__MODULE__{app: app_name}
+		app = %__MODULE__{app: app_name, status: :UP}
 		timer = trigger_heartbeat(app)
 		register(app)
 		{:ok, {app, timer}}
