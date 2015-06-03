@@ -106,7 +106,7 @@ defmodule Eurexa.EurexaServer do
 	```
 	"""
 
-	@type status.t = :UNKNOWN | :UP | :DOWN | :STARTING | :OUT_OF_SERVICE
+	@type status_t :: :UNKNOWN | :UP | :DOWN | :STARTING | :OUT_OF_SERVICE
 
 	defstruct app: "my_app",  
 	  hostName: "localhost",
