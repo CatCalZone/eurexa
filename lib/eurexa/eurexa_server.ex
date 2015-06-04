@@ -167,7 +167,7 @@ defmodule Eurexa.EurexaServer do
 	
 	def send_heartbeat(eureka_base_url, app_name, hostname) do
         make_url(eureka_base_url, app_name, hostname)
-          |> HTTPoison.put()		
+          |> HTTPoison.put("", [])		
 	end
 
 	def deregister(eureka_base_url, app_name, hostname) do
@@ -179,7 +179,7 @@ defmodule Eurexa.EurexaServer do
         json = make_instance_data(app)
         header = [{"content-type", "application/json"}]
 		make_url(eureka_base_url, app.app, app.hostName)
-            |> HTTPoison.post(header, json)
+            |> HTTPoison.post(json, header)
 	end
 	
 	def make_url(eureka_base_url, app_name, hostname) do
