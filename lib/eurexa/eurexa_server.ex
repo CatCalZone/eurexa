@@ -137,14 +137,18 @@ defmodule Eurexa.EurexaServer do
 	
 	def init([app_name]) do
 		app = %__MODULE__{app: app_name, status: :UP}
-		timer = trigger_heartbeat(app)
-		register(app)
-		{:ok, {app, timer}}
+        server = Application.get_env(:eurexa, :eureka_server)
+        port = Application.get_env(:eurexa, :eureka_port)
+        prefix = Application.get_env(:eurexa, :eureka_prefix)
+        eureka_base_url = "http://#{server}:#{port}#{prefix}/eureka/v2/apps"
+		timer = trigger_heartbeat(eureka_base_url, app)
+		register(eureka_base_url, app)
+		{:ok, {app, timer, eureka_base_url}}
 	end
 	
-	def terminate(reason, {app, timer}) do
+	def terminate(reason, {app, timer, eureka_base_url}) do
 		:timer.cancel(timer)
-		deregister(app.app, app.hostName)
+		deregister(eureka_base_url, app.app, app.hostName)
 	end
 	
 
