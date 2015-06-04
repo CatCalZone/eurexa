@@ -157,25 +157,41 @@ defmodule Eurexa.EurexaServer do
 	after 3/4 of the eviction interval, which usually 90 seconds. 
 	So, we are sending heatbeats every 67,5 seconds. 
 	"""
-	def trigger_heartbeat(%__MODULE__{app: app_name, hostName: hostname, 
-			leaseInfo: %{evictionDurationInSecs: interval}}) do
+	def trigger_heartbeat(eureka_base_url, 
+            %__MODULE__{app: app_name, hostName: hostname, 
+			 leaseInfo: %{evictionDurationInSecs: interval}}) do
 		{:ok, tref} = :timer.apply_interval(interval * 750, 
-			__MODULE__, :send_heartbeat, [app_name, hostname])
+			__MODULE__, :send_heartbeat, [eureka_base_url, app_name, hostname])
 		tref	
 	end
 	
-	def send_heartbeat(app_name, hostname) do
-		
+	def send_heartbeat(eureka_base_url, app_name, hostname) do
+        make_url(eureka_base_url, app_name, hostname)
+          |> HTTPoison.put()		
 	end
 
-	def deregister(app_name, hostname) do
-		
+	def deregister(eureka_base_url, app_name, hostname) do
+        make_url(eureka_base_url, app_name, hostname)
+		  |> HTTPoison.delete()
 	end
 	
-	def register(%__MODULE__{}) do
-		
+	def register(eureka_base_url, %__MODULE__{} = app) do
+        json = make_instance_data(app)
+        header = [{"content-type", "application/json"}]
+		make_url(eureka_base_url, app.app, app.hostName)
+            |> HTTPoison.post(header, json)
 	end
 	
-	
-
+	def make_url(eureka_base_url, app_name, hostname) do
+        "#{eureka_base_url}/#{app_name}/#{hostname}"
+    end
+    def make_url(eureka_base_url, app_name) do
+        "#{eureka_base_url}/#{app_name}"
+    end
+    
+    def make_instance_data(app = %__MODULE__{}) do
+        {:ok, json} = Poison.encode(app)
+        json
+    end
+    
 end
