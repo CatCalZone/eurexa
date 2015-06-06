@@ -142,16 +142,20 @@ defmodule Eurexa.EurexaServer do
         server = Application.get_env(:eurexa, :eureka_server)
         port = Application.get_env(:eurexa, :eureka_port)
         prefix = Application.get_env(:eurexa, :eureka_prefix)
-        eureka_base_url = "http://#{server}:#{port}#{prefix}/eureka/v2/apps"
-		timer = trigger_heartbeat(eureka_base_url, app)
-		{:ok, resp} = register(eureka_base_url, app)
+        version= Application.get_env(:eurexa, :version)
+        mod = case version do
+            2 -> Eurexe.EurekaV2
+        end
+        eureka_base_url = "http://#{server}:#{port}#{prefix}"
+		timer = mod.trigger_heartbeat(eureka_base_url, app)
+		{:ok, resp} = mod.register(eureka_base_url, app)
         Logger.info "Registration suceeded with response #{inspect resp}"
-		{:ok, {app, timer, eureka_base_url}}
+		{:ok, {app, timer, eureka_base_url}, mod}
 	end
 	
-	def terminate(reason, {app, timer, eureka_base_url}) do
+	def terminate(reason, {app, timer, eureka_base_url}, mod) do
 		:timer.cancel(timer)
-		deregister(eureka_base_url, app.app, app.hostName)
+		mod.deregister(eureka_base_url, app.app, app.hostName)
 	end
 	
 
@@ -168,30 +172,6 @@ defmodule Eurexa.EurexaServer do
 		tref	
 	end
 	
-	def send_heartbeat(eureka_base_url, app_name, hostname) do
-        make_url(eureka_base_url, app_name, hostname)
-          |> HTTPoison.put("", [])		
-	end
-
-	def deregister(eureka_base_url, app_name, hostname) do
-        make_url(eureka_base_url, app_name, hostname)
-		  |> HTTPoison.delete()
-	end
-	
-	def register(eureka_base_url, %__MODULE__{} = app) do
-        json = make_instance_data(app)
-        header = [{"content-type", "application/json"}]
-		make_url(eureka_base_url, app.app, app.hostName)
-            |> HTTPoison.post(json, header)
-	end
-	
-	def make_url(eureka_base_url, app_name, hostname) do
-        "#{eureka_base_url}/#{app_name}/#{hostname}"
-    end
-    def make_url(eureka_base_url, app_name) do
-        "#{eureka_base_url}/#{app_name}"
-    end
-    
     def make_instance_data(app = %__MODULE__{}) do
         {:ok, json} = Poison.encode(app)
         json
