@@ -127,6 +127,8 @@ defmodule Eurexa.EurexaServer do
 	  metadata: %{}
 
 	use GenServer
+    require Logger
+
 
 	@doc """
 	Starts the Eurexa Server process for application `app_name`.
@@ -137,14 +139,23 @@ defmodule Eurexa.EurexaServer do
 	
 	def init([app_name]) do
 		app = %__MODULE__{app: app_name, status: :UP}
-		timer = trigger_heartbeat(app)
-		register(app)
-		{:ok, {app, timer}}
+        server = Application.get_env(:eurexa, :eureka_server)
+        port = Application.get_env(:eurexa, :eureka_port)
+        prefix = Application.get_env(:eurexa, :eureka_prefix)
+        version= Application.get_env(:eurexa, :version)
+        mod = case version do
+            2 -> Eurexe.EurekaV2
+        end
+        eureka_base_url = "http://#{server}:#{port}#{prefix}"
+		timer = mod.trigger_heartbeat(eureka_base_url, app)
+		{:ok, resp} = mod.register(eureka_base_url, app)
+        Logger.info "Registration suceeded with response #{inspect resp}"
+		{:ok, {app, timer, eureka_base_url}, mod}
 	end
 	
-	def terminate(reason, {app, timer}) do
+	def terminate(reason, {app, timer, eureka_base_url}, mod) do
 		:timer.cancel(timer)
-		deregister(app.app, app.hostName)
+		mod.deregister(eureka_base_url, app.app, app.hostName)
 	end
 	
 
@@ -153,25 +164,17 @@ defmodule Eurexa.EurexaServer do
 	after 3/4 of the eviction interval, which usually 90 seconds. 
 	So, we are sending heatbeats every 67,5 seconds. 
 	"""
-	def trigger_heartbeat(%__MODULE__{app: app_name, hostName: hostname, 
-			leaseInfo: %{evictionDurationInSecs: interval}}) do
+	def trigger_heartbeat(eureka_base_url, 
+            %__MODULE__{app: app_name, hostName: hostname, 
+			 leaseInfo: %{evictionDurationInSecs: interval}}) do
 		{:ok, tref} = :timer.apply_interval(interval * 750, 
-			__MODULE__, :send_heartbeat, [app_name, hostname])
+			__MODULE__, :send_heartbeat, [eureka_base_url, app_name, hostname])
 		tref	
 	end
 	
-	def send_heartbeat(app_name, hostname) do
-		
-	end
-
-	def deregister(app_name, hostname) do
-		
-	end
-	
-	def register(%__MODULE__{}) do
-		
-	end
-	
-	
-
+    def make_instance_data(app = %__MODULE__{}) do
+        {:ok, json} = Poison.encode(app)
+        json
+    end
+    
 end
