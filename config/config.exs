@@ -18,7 +18,8 @@ use Mix.Config
 config :eurexa, 
 	eureka_server: "127.0.0.1",
 	eureka_port: 8761,
-	eureka_prefix: "/"
+	eureka_prefix: "/",
+	eureka_version: 2
 
 # It is also possible to import configuration files, relative to this
 # directory. For example, you can emulate configuration per environment
