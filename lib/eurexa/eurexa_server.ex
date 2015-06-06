@@ -127,6 +127,8 @@ defmodule Eurexa.EurexaServer do
 	  metadata: %{}
 
 	use GenServer
+    require Logger
+
 
 	@doc """
 	Starts the Eurexa Server process for application `app_name`.
@@ -142,7 +144,8 @@ defmodule Eurexa.EurexaServer do
         prefix = Application.get_env(:eurexa, :eureka_prefix)
         eureka_base_url = "http://#{server}:#{port}#{prefix}/eureka/v2/apps"
 		timer = trigger_heartbeat(eureka_base_url, app)
-		register(eureka_base_url, app)
+		{:ok, resp} = register(eureka_base_url, app)
+        Logger.info "Registration suceeded with response #{inspect resp}"
 		{:ok, {app, timer, eureka_base_url}}
 	end
 	
