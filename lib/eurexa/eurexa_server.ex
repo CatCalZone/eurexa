@@ -144,7 +144,8 @@ defmodule Eurexa.EurexaServer do
         prefix = Application.get_env(:eurexa, :eureka_prefix)
         version= Application.get_env(:eurexa, :version)
         mod = case version do
-            2 -> Eurexe.EurekaV2
+            1 -> Eurexa.EurekaV1
+            2 -> Eurexa.EurekaV2
         end
         eureka_base_url = "http://#{server}:#{port}#{prefix}"
 		timer = mod.trigger_heartbeat(eureka_base_url, app)
