@@ -5,7 +5,7 @@ defmodule Eurexa.EurekaV2 do
 	"""
 
 	alias Eurexa.EurexaServer
-	@eureka_api "/eureka/v2/apps"
+	@eureka_api "eureka/v2/apps"
 
 	@behaviour Eurexa.EurekaBehaviour
 
@@ -27,10 +27,10 @@ defmodule Eurexa.EurekaV2 do
 	end
 	
 	def make_url(eureka_base_url, app_name, hostname) do
-        "#{eureka_base_url}/#{@eureka_api}/#{app_name}/#{hostname}"
+        "#{eureka_base_url}#{@eureka_api}/#{app_name}/#{hostname}"
     end
     def make_url(eureka_base_url, app_name) do
-        "#{eureka_base_url}/#{@eureka_api}/#{app_name}"
+        "#{eureka_base_url}#{@eureka_api}/#{app_name}"
     end
 
 end
