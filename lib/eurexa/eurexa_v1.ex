@@ -3,6 +3,7 @@ defmodule Eurexa.EurekaV1 do
 	This module implements the protocol of the Eureka version 1 interface. 
 	"""
 
+	alias Eurexa.EurexaServer
 	@behaviour Eurexa.EurexaBehaviour
 
 	def send_heartbeat(eureka_base_url, app_name, hostname) do
