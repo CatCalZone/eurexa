@@ -7,6 +7,8 @@ defmodule Eurexa.EurekaV2 do
 	alias Eurexa.EurexaServer
 	@eureka_api "/eureka/v2/apps"
 
+	@behaviour Eurexa.EurekaBehaviour
+
 	def send_heartbeat(eureka_base_url, app_name, hostname) do
         make_url(eureka_base_url, app_name, hostname)
           |> HTTPoison.put("", [])		
@@ -17,18 +19,18 @@ defmodule Eurexa.EurekaV2 do
 		  |> HTTPoison.delete()
 	end
 	
-	def register(eureka_base_url, %__MODULE__{} = app) do
-        json = make_instance_data(app)
+	def register(eureka_base_url, %EurexaServer{} = app) do
+        json = EurexaServer.make_instance_data(app)
         header = [{"content-type", "application/json"}]
 		make_url(eureka_base_url, app.app, app.hostName)
             |> HTTPoison.post(json, header)
 	end
 	
 	def make_url(eureka_base_url, app_name, hostname) do
-        "#{eureka_base_url}/#{eureka_api}/#{app_name}/#{hostname}"
+        "#{eureka_base_url}/#{@eureka_api}/#{app_name}/#{hostname}"
     end
     def make_url(eureka_base_url, app_name) do
-        "#{eureka_base_url}/#{eureka_api}/#{app_name}"
+        "#{eureka_base_url}/#{@eureka_api}/#{app_name}"
     end
 
 end
