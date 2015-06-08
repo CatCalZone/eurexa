@@ -142,13 +142,13 @@ defmodule Eurexa.EurexaServer do
         server = Application.get_env(:eurexa, :eureka_server)
         port = Application.get_env(:eurexa, :eureka_port)
         prefix = Application.get_env(:eurexa, :eureka_prefix)
-        version= Application.get_env(:eurexa, :version)
+        version= Application.get_env(:eurexa, :eureka_version)
         mod = case version do
             1 -> Eurexa.EurekaV1
             2 -> Eurexa.EurekaV2
         end
         eureka_base_url = "http://#{server}:#{port}#{prefix}"
-		timer = mod.trigger_heartbeat(eureka_base_url, app)
+		timer = trigger_heartbeat(eureka_base_url, app, mod)
 		{:ok, resp} = mod.register(eureka_base_url, app)
         Logger.info "Registration suceeded with response #{inspect resp}"
 		{:ok, {app, timer, eureka_base_url}, mod}
@@ -167,9 +167,10 @@ defmodule Eurexa.EurexaServer do
 	"""
 	def trigger_heartbeat(eureka_base_url, 
             %__MODULE__{app: app_name, hostName: hostname, 
-			 leaseInfo: %{evictionDurationInSecs: interval}}) do
+			 leaseInfo: %{evictionDurationInSecs: interval}}, 
+             mod) do
 		{:ok, tref} = :timer.apply_interval(interval * 750, 
-			__MODULE__, :send_heartbeat, [eureka_base_url, app_name, hostname])
+			mod, :send_heartbeat, [eureka_base_url, app_name, hostname])
 		tref	
 	end
 	
