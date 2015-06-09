@@ -111,11 +111,11 @@ defmodule Eurexa.EurexaServer do
 	defstruct app: "my_app",  
 	  hostName: "localhost",
 	  ipAddr: "127.0.0.1",
-	  vipAddress: nil,
-	  secureVipAddress: nil,
+	  vipAddress: "",
+	  secureVipAddress: "",
 	  status: :UNKNOWN, 
-	  port: 0,
-	  securePort: nil,
+	  port: 4001,
+	  securePort: 0,
 	  homePageUrl: nil,
 	  statusPageUrl: nil,
 	  healthCheckUrl: nil,
@@ -123,7 +123,7 @@ defmodule Eurexa.EurexaServer do
 	  	name: "MyOwn",
 	  	metadata: %{}
 	  },
-	  leaseInfo: %{ evictionDurationInSecs: 90},
+	  leaseInfo: %{ evictionDurationInSecs: 30},
 	  metadata: %{}
 
 	use GenServer
@@ -142,18 +142,20 @@ defmodule Eurexa.EurexaServer do
         server = Application.get_env(:eurexa, :eureka_server)
         port = Application.get_env(:eurexa, :eureka_port)
         prefix = Application.get_env(:eurexa, :eureka_prefix)
-        version= Application.get_env(:eurexa, :version)
+        version= Application.get_env(:eurexa, :eureka_version)
         mod = case version do
-            2 -> Eurexe.EurekaV2
+            1 -> Eurexa.EurekaV1
+            2 -> Eurexa.EurekaV2
         end
         eureka_base_url = "http://#{server}:#{port}#{prefix}"
-		timer = mod.trigger_heartbeat(eureka_base_url, app)
+		timer = trigger_heartbeat(eureka_base_url, app, mod)
 		{:ok, resp} = mod.register(eureka_base_url, app)
         Logger.info "Registration suceeded with response #{inspect resp}"
-		{:ok, {app, timer, eureka_base_url}, mod}
+		{:ok, {app, timer, eureka_base_url, mod}}
 	end
 	
-	def terminate(reason, {app, timer, eureka_base_url}, mod) do
+	def terminate(reason, {app, timer, eureka_base_url, mod}) do
+        Logger.info "Terminating: derigster #{app} as Eureka"
 		:timer.cancel(timer)
 		mod.deregister(eureka_base_url, app.app, app.hostName)
 	end
@@ -161,14 +163,15 @@ defmodule Eurexa.EurexaServer do
 
 	@doc """
 	Initializes the interval timer sending heartbeats to Eureka 
-	after 3/4 of the eviction interval, which usually 90 seconds. 
-	So, we are sending heatbeats every 67,5 seconds. 
+	after 3/4 of the eviction interval, which usually 30 seconds. 
+	So, we are sending heatbeats every 22,5 seconds. 
 	"""
 	def trigger_heartbeat(eureka_base_url, 
             %__MODULE__{app: app_name, hostName: hostname, 
-			 leaseInfo: %{evictionDurationInSecs: interval}}) do
+			 leaseInfo: %{evictionDurationInSecs: interval}}, 
+             mod) do
 		{:ok, tref} = :timer.apply_interval(interval * 750, 
-			__MODULE__, :send_heartbeat, [eureka_base_url, app_name, hostname])
+			mod, :send_heartbeat, [eureka_base_url, app_name, hostname])
 		tref	
 	end
 	
