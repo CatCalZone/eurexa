@@ -10,7 +10,7 @@ defmodule EurexaTest do
   	eureka_host = "eureka.catcal.zone"
   	base_url = "http://#{eureka_host}:8761/"# "eureka/v2/apps"
 
-  	assert "http://#{eureka_host}:8761/eureka/v2/apps/#{app}/#{hostname}" == 
+  	assert "http://#{eureka_host}:8761/eureka/apps/#{app}/#{hostname}" == 
   		EurekaV2.make_url(base_url, app, hostname)
   end
 
@@ -20,7 +20,7 @@ defmodule EurexaTest do
   	eureka_host = "eureka.catcal.zone"
   	base_url = "http://#{eureka_host}:8761/"
 
-  	assert "http://#{eureka_host}:8761/eureka/v2/apps/#{app}" == 
+  	assert "http://#{eureka_host}:8761/eureka/apps/#{app}" == 
   		EurekaV2.make_url(base_url, app)
   end
 
