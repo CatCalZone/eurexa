@@ -111,11 +111,11 @@ defmodule Eurexa.EurexaServer do
 	defstruct app: "my_app",  
 	  hostName: "localhost",
 	  ipAddr: "127.0.0.1",
-	  vipAddress: nil,
-	  secureVipAddress: nil,
+	  vipAddress: "",
+	  secureVipAddress: "",
 	  status: :UNKNOWN, 
-	  port: 0,
-	  securePort: nil,
+	  port: 4001,
+	  securePort: 0,
 	  homePageUrl: nil,
 	  statusPageUrl: nil,
 	  healthCheckUrl: nil,
@@ -123,7 +123,7 @@ defmodule Eurexa.EurexaServer do
 	  	name: "MyOwn",
 	  	metadata: %{}
 	  },
-	  leaseInfo: %{ evictionDurationInSecs: 90},
+	  leaseInfo: %{ evictionDurationInSecs: 30},
 	  metadata: %{}
 
 	use GenServer
@@ -163,8 +163,8 @@ defmodule Eurexa.EurexaServer do
 
 	@doc """
 	Initializes the interval timer sending heartbeats to Eureka 
-	after 3/4 of the eviction interval, which usually 90 seconds. 
-	So, we are sending heatbeats every 67,5 seconds. 
+	after 3/4 of the eviction interval, which usually 30 seconds. 
+	So, we are sending heatbeats every 22,5 seconds. 
 	"""
 	def trigger_heartbeat(eureka_base_url, 
             %__MODULE__{app: app_name, hostName: hostname, 
