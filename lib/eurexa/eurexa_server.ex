@@ -151,10 +151,11 @@ defmodule Eurexa.EurexaServer do
 		timer = trigger_heartbeat(eureka_base_url, app, mod)
 		{:ok, resp} = mod.register(eureka_base_url, app)
         Logger.info "Registration suceeded with response #{inspect resp}"
-		{:ok, {app, timer, eureka_base_url}, mod}
+		{:ok, {app, timer, eureka_base_url, mod}}
 	end
 	
-	def terminate(reason, {app, timer, eureka_base_url}, mod) do
+	def terminate(reason, {app, timer, eureka_base_url, mod}) do
+        Logger.info "Terminating: derigster #{app} as Eureka"
 		:timer.cancel(timer)
 		mod.deregister(eureka_base_url, app.app, app.hostName)
 	end
