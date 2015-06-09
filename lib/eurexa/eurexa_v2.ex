@@ -22,7 +22,7 @@ defmodule Eurexa.EurekaV2 do
 	def register(eureka_base_url, %EurexaServer{} = app) do
         json = EurexaServer.make_instance_data(app)
         header = [{"content-type", "application/json"}]
-		make_url(eureka_base_url, app.app, app.hostName)
+		make_url(eureka_base_url, app.app)
             |> HTTPoison.post(json, header)
 	end
 	
