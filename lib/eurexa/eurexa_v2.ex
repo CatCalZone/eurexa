@@ -5,7 +5,7 @@ defmodule Eurexa.EurekaV2 do
 	"""
 
 	alias Eurexa.EurexaServer
-	@eureka_api "eureka/v2/apps"
+	@eureka_api "eureka/apps" # in Eureka Spring the v2 is eliminated 
 
 	@behaviour Eurexa.EurekaBehaviour
 
