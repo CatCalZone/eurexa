@@ -33,4 +33,23 @@ defmodule EurexaTest do
     assert ~r{"ipAddr" *: *"127.0.0.1"} |> Regex.match? json
   end
 
+  test "empty worker definition" do
+    assert [] == Eurexa.workers([])
+  end
+
+  test "single not existing worker definition" do
+    assert [] == Eurexa.workers(:i_am_not_configured)
+  end
+
+  test "single existing worker definition" do
+    mod = EurexaServer
+    assert [{^mod, {^mod, :start_link, [:eurexa]}, _, _, :worker, _}] = Eurexa.workers(:eurexa)
+  end
+
+  test "mixture of  existing and not existing worker definitions" do
+    mod = EurexaServer
+    assert [{^mod, {^mod, :start_link, [:eurexa]}, _, _, :worker, _}] = Eurexa.workers([:eurexa, :i_am_not_configured])
+  end
+
+
 end
