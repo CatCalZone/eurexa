@@ -139,10 +139,12 @@ defmodule Eurexa.EurexaServer do
 	
 	def init([app_name]) do
 		app = %__MODULE__{app: app_name, status: :UP}
-        server = Application.get_env(:eurexa, :eureka_server)
-        port = Application.get_env(:eurexa, :eureka_port)
-        prefix = Application.get_env(:eurexa, :eureka_prefix)
-        version= Application.get_env(:eurexa, :eureka_version)
+        conf = Application.get_env(:eurexa, app_name)
+        server = conf[:eureka_server]
+        port = conf[:eureka_port]
+        prefix = conf[:eureka_prefix]
+        version= conf[:eureka_version]
+
         mod = case version do
             1 -> Eurexa.EurekaV1
             2 -> Eurexa.EurekaV2
