@@ -3,7 +3,7 @@ defmodule Eurexa.Mixfile do
 
   def project do
     [app: :eurexa,
-     version: "0.0.1-dev",
+     version: "0.0.1",
      elixir: "~> 1.0",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
