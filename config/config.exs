@@ -15,7 +15,7 @@ use Mix.Config
 #       format: "$date $time [$level] $metadata$message\n",
 #       metadata: [:user_id]
 
-config :eurexa, 
+config :eurexa, :eurexa,
 	eureka_server: "127.0.0.1",
 	eureka_port: 8761,
 	eureka_prefix: "/",
