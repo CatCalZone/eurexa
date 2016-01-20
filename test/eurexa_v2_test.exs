@@ -10,7 +10,7 @@ defmodule EurexaTest do
   	eureka_host = "eureka.catcal.zone"
   	base_url = "http://#{eureka_host}:8761/"# "eureka/v2/apps"
 
-  	assert "http://#{eureka_host}:8761/eureka/apps/#{app}/#{hostname}" == 
+  	assert "http://#{eureka_host}:8761/eureka/apps/#{app}/#{hostname}" ==
   		EurekaV2.make_url(base_url, app, hostname)
   end
 
@@ -20,7 +20,7 @@ defmodule EurexaTest do
   	eureka_host = "eureka.catcal.zone"
   	base_url = "http://#{eureka_host}:8761/"
 
-  	assert "http://#{eureka_host}:8761/eureka/apps/#{app}" == 
+  	assert "http://#{eureka_host}:8761/eureka/apps/#{app}" ==
   		EurekaV2.make_url(base_url, app)
   end
 
@@ -28,9 +28,9 @@ defmodule EurexaTest do
   	app = %EurexaServer{}
   	json = EurexaServer.make_instance_data(app)
 
-  	assert ~r{"app" *: *"my_app"} |> Regex.match? json
-    assert ~r{"hostName" *: *"localhost"} |> Regex.match? json
-    assert ~r{"ipAddr" *: *"127.0.0.1"} |> Regex.match? json
+  	assert ~r{"app" *: *"my_app"} |> Regex.match?(json)
+    assert ~r{"hostName" *: *"localhost"} |> Regex.match?(json)
+    assert ~r{"ipAddr" *: *"127.0.0.1"} |> Regex.match?(json)
   end
 
   test "empty worker definition" do
@@ -50,6 +50,4 @@ defmodule EurexaTest do
     mod = EurexaServer
     assert [{^mod, {^mod, :start_link, [:eurexa]}, _, _, :worker, _}] = Eurexa.workers([:eurexa, :i_am_not_configured])
   end
-
-
 end
