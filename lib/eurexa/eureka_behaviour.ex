@@ -11,8 +11,7 @@ defmodule Eurexa.EurekaBehaviour do
 	defcallback  send_heartbeat(url_t, app_t, id_t) :: any
 
 	defcallback deregister(url_t, app_t, id_t) :: any
-	
-	defcallback register(url_t, %Eurexa.EurexaServer{}) :: any
 
+	defcallback register(url_t, %Eurexa.EurexaServer{}) :: any
 
 end
